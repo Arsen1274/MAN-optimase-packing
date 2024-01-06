@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>MAN work Sirkovych</title>
+</head>
+<body>
+<br>
+<br>
+<br>
+<div class="container text-center">
+
+
+    <h4>Sirkovych Sviatoslav’s MAN work </h4>
+    <br><br>
+<!--    <br><br><br>-->
+    <div class="container">
+        <h2 class="mt-5 mb-4">Evaluation result</h2>
+
+        <p><label>Provided product length (A): </label> <strong th:text="${evaluationResult.productA}"></strong></p>
+        <p><label>Provided product width (B): </label> <strong th:text="${evaluationResult.productB}"></strong></p>
+        <p><label>Provided product height (C): </label> <strong th:text="${evaluationResult.productC}"></strong></p>
+
+        <br>
+        <p><label>Recommended packing length (A): </label> <strong th:text="${evaluationResult.packingA}"></strong></p>
+        <p><label>Recommended packing width (B): </label> <strong th:text="${evaluationResult.packingB}"></strong></p>
+        <p><label>Recommended packing height (C): </label> <strong th:text="${evaluationResult.packingC}"></strong></p>
+
+<!--        <p><label>Description: </label> <strong th:text="${lesson.notes}"></strong></p>-->
+
+<!--        <td th:switch="${evaluationResult.square}">-->
+<!--            <span th:case="'RECTANGLE'">NO COURSES YET!</span>-->
+<!--            <span th:case="'cylinder'" th:text="CYLINDER case"></span>-->
+<!--            <div th:case="*">-->
+<!--                <div th:each="course:${teacher.courses}" th:text="${course}"/>-->
+<!--            </div>-->
+<!--        </td>-->
+
+
+        <h3><a th:href="@{/home}">Home</a></h3>
+    <h3><a th:href="@{/evaluate-form}">Evaluate optimal packing</a></h3>
+    </div>
+
+</div>
+
+</body>
+</html>
