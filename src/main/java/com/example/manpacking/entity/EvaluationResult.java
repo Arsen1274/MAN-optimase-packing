@@ -23,4 +23,6 @@ public class EvaluationResult {
     private Integer packingB;
     private Integer packingC;
 
+    private Integer amountOfProducts;
+
 }

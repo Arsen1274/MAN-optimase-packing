@@ -17,12 +17,14 @@ import java.awt.image.BufferedImage;
 public class EvaluationService {
 
     public EvaluationResult evaluateResult(EvaluateFormObject formObj) {
-        Double koefK = evaluateKoefK(formObj.getLength(), formObj.getWidth(), formObj.getHeight());
+        Double koefK = evaluateKoefK(formObj.getLength(), formObj.getHeight());
         Integer koefN = evaluateKoefN(formObj.getLength(), formObj.getWidth());
 
         Integer packingA = formObj.getLength();
         Integer packingB = formObj.getWidth() * koefN;
-        Integer packingC = Math.toIntExact(Math.round(formObj.getHeight() * koefK));
+        Integer packingC = doubleToInt(formObj.getHeight() * koefK);
+
+        Integer amount = amountOfProducts(koefK , koefN);
 
         return EvaluationResult.builder()
                 .productA(formObj.getLength())
@@ -31,7 +33,12 @@ public class EvaluationService {
                 .packingA(packingA)
                 .packingB(packingB)
                 .packingC(packingC)
+                .amountOfProducts(amount)
                 .build();
+    }
+
+    private Integer amountOfProducts(Double koefK, Integer koefN) {
+        return doubleToInt(koefN * koefK);
     }
 
     private Integer evaluateKoefN(Integer length, Integer width) {
@@ -43,11 +50,14 @@ public class EvaluationService {
         }
     }
 
-    private Double evaluateKoefK(Integer length, Integer width, Integer height) {
-        float koef = (length * width) / (float) height;
+    private Double evaluateKoefK(Integer length, Integer height) {
+        float koef = length / (float) height;
         return Math.ceil(koef); //ceil - round up
     }
 
+    private static Integer doubleToInt(Double d){
+        return Math.toIntExact(Math.round(d));
+    }
 
     public BufferedImage generateParallelepipedImage() {
         int width = 300;
