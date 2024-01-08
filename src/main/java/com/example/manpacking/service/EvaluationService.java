@@ -2,11 +2,16 @@ package com.example.manpacking.service;
 
 import com.example.manpacking.entity.EvaluateFormObject;
 import com.example.manpacking.entity.EvaluationResult;
+import com.example.manpacking.entity.cylinder.CylinderOptimizationObject;
+import com.example.manpacking.entity.cylinder.EvaluateCylinderFormObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Arsen Sirkovych on 06.01.2024
@@ -16,15 +21,20 @@ import java.awt.image.BufferedImage;
 @Service
 public class EvaluationService {
 
+    Integer ITERATION_NUM = 50;
+    Integer LIMIT_NUM = 15;
+    Integer BEFORE_NUM_CHECK = 5;
+
+
     public EvaluationResult evaluateResult(EvaluateFormObject formObj) {
-        Double koefK = evaluateKoefK(formObj.getLength(), formObj.getHeight());
+        Integer koefK = evaluateKoefK(formObj.getLength(), formObj.getHeight());
         Integer koefN = evaluateKoefN(formObj.getLength(), formObj.getWidth());
 
         Integer packingA = formObj.getLength();
         Integer packingB = formObj.getWidth() * koefN;
-        Integer packingC = doubleToInt(formObj.getHeight() * koefK);
+        Integer packingC = formObj.getHeight() * koefK;
 
-        Integer amount = amountOfProducts(koefK , koefN);
+        Integer amount = amountOfProducts(koefK, koefN);
 
         return EvaluationResult.builder()
                 .productA(formObj.getLength())
@@ -37,25 +47,25 @@ public class EvaluationService {
                 .build();
     }
 
-    private Integer amountOfProducts(Double koefK, Integer koefN) {
-        return doubleToInt(koefN * koefK);
+    private Integer amountOfProducts(Integer koefK, Integer koefN) {
+        return koefN * koefK;
     }
 
     private Integer evaluateKoefN(Integer length, Integer width) {
         float correlation = length / (float) width;
-        if(correlation >= 2f ){
+        if (correlation >= 2f) {
             return Math.round(correlation);
-        }else{
+        } else {
             return 1;
         }
     }
 
-    private Double evaluateKoefK(Integer length, Integer height) {
+    private Integer evaluateKoefK(Integer length, Integer height) {
         float koef = length / (float) height;
-        return Math.ceil(koef); //ceil - round up
+        return Math.round(koef);
     }
 
-    private static Integer doubleToInt(Double d){
+    private static Integer doubleToInt(Double d) {
         return Math.toIntExact(Math.round(d));
     }
 
@@ -94,4 +104,121 @@ public class EvaluationService {
     }
 
 
+    public List<CylinderOptimizationObject> evaluateCylinderPacking(EvaluateCylinderFormObject formObj) {
+        Integer multiplyKoef = 7;
+        Integer RADIUS_KOEF = 6;
+        Integer sevenUnitDiam = RADIUS_KOEF * formObj.getDiameter();
+
+
+//        Integer packingRadius;
+//        Integer packingDiam;
+//        Integer packingHeight;
+//        Integer amountOfProducts;
+        LinkedList<CylinderOptimizationObject> corrMap = new LinkedList<>();
+        if (formObj.getDiameter() < formObj.getHeight()) {
+
+            for (int n = 1; n < ITERATION_NUM; n++) {
+                for (int p = 1; p < ITERATION_NUM; p++) {
+                    Double tempHeight = (double) formObj.getHeight() * p;
+                    Double tempDiameter = formObj.getDiameter() * Math.pow(3, n);
+                    Double correlation = tempHeight / (double) tempDiameter;
+                    Double tempAmount = Math.pow(7, n) * p;
+
+                    if (p > BEFORE_NUM_CHECK && biggerThanPreviousCorr(correlation, corrMap)) {
+                        break;
+                    }
+
+                    CylinderOptimizationObject object = CylinderOptimizationObject.builder()
+                            .diameter(tempDiameter)
+                            .height(tempHeight)
+                            .n(n)
+                            .p(p)
+                            .amount(tempAmount)
+                            .correlation(correlation)
+                            .build();
+                    corrMap.add(object);
+                }
+            }
+
+
+        } else {
+
+            for (int n = 1; n < ITERATION_NUM; n++) {
+                for (int p = 1; p < ITERATION_NUM; p++) {
+                    Double tempHeight = (double) formObj.getHeight() * p;
+                    Double tempDiameter = formObj.getDiameter() * Math.pow(3, n);
+                    Double correlation =  (double) tempDiameter/ tempHeight;
+                    Double tempAmount = Math.pow(7, n) * p;
+
+                    if (p > BEFORE_NUM_CHECK && biggerThanPreviousCorr(correlation, corrMap)) {
+                        break;
+                    }
+
+                    CylinderOptimizationObject object = CylinderOptimizationObject.builder()
+                            .diameter(tempDiameter)
+                            .height(tempHeight)
+                            .n(n)
+                            .p(p)
+                            .amount(tempAmount)
+                            .correlation(correlation)
+                            .build();
+                    corrMap.add(object);
+                }
+            }
+
+        }
+
+        List<CylinderOptimizationObject> sortedMap = corrMap.stream().sorted(new Comparator<CylinderOptimizationObject>() {
+                    @Override
+                    public int compare(CylinderOptimizationObject o1, CylinderOptimizationObject o2) {
+                        Double o1Corr = Math.abs(o1.getCorrelation() - 1);
+                        Double o2Corr = Math.abs(o2.getCorrelation() - 1);
+                        return o1Corr.compareTo(o2Corr);
+                    }
+                })
+                .filter(e -> e.getCorrelation() != 0.0)
+                .limit(LIMIT_NUM)
+                .collect(Collectors.toList());
+        Collections.sort(corrMap);
+        return sortedMap;
+
+
+//        Integer koefK = evaluateKoefK(sevenUnitDiam, formObj.getHeight());
+//        packingRadius = sevenUnitDiam * koefK / 2;
+//        packingDiam = sevenUnitDiam * koefK;
+//        packingHeight = formObj.getHeight();
+//        amountOfProducts = multiplyKoef * koefK;
+//        return CylinderResponse.builder()
+//                .radius(formObj.getRadius())
+//                .height(formObj.getHeight())
+//                .packingRadius(packingRadius)
+//                .packingDiam(packingDiam)
+//                .packingHeight(packingHeight)
+//                .amountOfProducts(amountOfProducts).build();
+    }
+
+    private boolean biggerThanPreviousCorr(Double correlation, LinkedList<CylinderOptimizationObject> corrMap) {
+        if (corrMap.size() > BEFORE_NUM_CHECK) {
+
+//            for (int i = corrMap.size() -1 ; i > corrMap.size() - num; i--) {
+            if (correlation > corrMap.get(corrMap.size() - 1).getCorrelation()) {
+                if (correlation > corrMap.get(corrMap.size() - 2).getCorrelation()) {
+                    if (correlation > corrMap.get(corrMap.size() - 3).getCorrelation()) {
+                        if (correlation > corrMap.get(corrMap.size() - 4).getCorrelation()) {
+                            if (correlation > corrMap.get(corrMap.size() - 5).getCorrelation()) {
+//                                if (correlation > corrMap.get(corrMap.size() - 6).getCorrelation()) {
+//                                    if (correlation > corrMap.get(corrMap.size() - 7).getCorrelation()) {
+                                return true;
+//                                    }
+//                                }
+                            }
+                        }
+                    }
+                }
+            }
+//            }
+        }
+
+        return false;
+    }
 }

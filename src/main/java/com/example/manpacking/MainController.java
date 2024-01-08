@@ -1,5 +1,7 @@
 package com.example.manpacking;
 
+import com.example.manpacking.entity.cylinder.CylinderOptimizationObject;
+import com.example.manpacking.entity.cylinder.EvaluateCylinderFormObject;
 import com.example.manpacking.entity.EvaluateFormObject;
 import com.example.manpacking.entity.EvaluationResult;
 import com.example.manpacking.service.EvaluationService;
@@ -18,6 +20,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 
 /**
  * @author Arsen Sirkovych on 06.01.2024
@@ -42,11 +45,27 @@ public class MainController {
     }
 
 
+
     @PostMapping ("/process-evaluate")
     public String getProcessEvaluateForm(EvaluateFormObject evaluateFormObject, Model model){
         EvaluationResult evaluationResult = evaluationService.evaluateResult(evaluateFormObject);
         model.addAttribute( "evaluationResult", evaluationResult);
         return "evaluation-result";
+    }
+
+
+    @GetMapping("/evaluate-cylinder-form")
+    public String getEvaluateCylinderForm(Model model){
+        model.addAttribute( "evaluateCylinderForm", new EvaluateCylinderFormObject());
+        return "evaluate-cylinder-form";
+    }
+
+    @PostMapping ("/process-evaluate-cylinder")
+    public String getProcessEvaluateCylinderForm(EvaluateCylinderFormObject evaluateCylinderFormObject, Model model){
+        List<CylinderOptimizationObject> evaluationResults = evaluationService.evaluateCylinderPacking(evaluateCylinderFormObject);
+        model.addAttribute( "evaluationResults", evaluationResults);
+        model.addAttribute( "request", evaluateCylinderFormObject);
+        return "evaluation-cylinder-result-table";
     }
 
 

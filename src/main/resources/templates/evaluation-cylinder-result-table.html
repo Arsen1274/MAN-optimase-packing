@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>MAN work Sirkovych</title>
+</head>
+<body>
+<br>
+<br>
+<br>
+<div class="container text-center">
+
+
+    <h4>Sirkovych Sviatoslav’s MAN work </h4>
+    <br><br>
+    <!--    <br><br><br>-->
+    <div class="container ">
+            <h2 class="mt-5 mb-4">Evaluation result</h2>
+
+            <p><label>Provided product diameter: </label> <strong th:text="${request.diameter}"></strong></p>
+            <p><label>Provided product height: </label> <strong th:text="${request.height}"></strong></p>
+
+            <br>
+            <p><label>Recommended packing diameter: </label> <strong th:text="${evaluationResults[0].diameter}"></strong></p>
+            <p><label>Recommended packing height: </label> <strong th:text="${evaluationResults[0].height}"></strong></p>
+            <p><label>Amount of product in packaging: </label> <strong th:text="${evaluationResults[0].amount}"></strong></p>
+
+            <br>
+
+
+
+        <h3>Best correlations for cylinder</h3>
+        <table style="border: 1px" class="table table-striped table-responsive-md table table-bordered">
+            <caption></caption>
+
+            <thead>
+            <tr>
+                <th>
+                    Diameter
+                </th>
+                <th>
+                    Height
+                </th>
+                <th>
+                    N (D Koef)
+                </th>
+                <th>
+                    P (H Koef)
+                </th>
+                <th>
+                    Amount
+                </th>
+                <th>
+                    Correlation
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="evaluationResult : ${evaluationResults}" class="table-success">
+                <td th:text="${evaluationResult.getDiameter()}"/>
+                <td th:text="${evaluationResult.getHeight()}"/>
+                <td th:text="${evaluationResult.getN()}"/>
+                <td th:text="${evaluationResult.getP()}"/>
+                <td th:text="${evaluationResult.getAmount()}"/>
+                <td th:text="${evaluationResult.getCorrelation()}"/>
+
+            </tr>
+            </tbody>
+        </table>
+
+        <h3><a th:href="@{/home}">Home</a></h3>
+        <h3><a th:href="@{/evaluate-form}">Evaluate optimal packing for parallelepiped</a></h3>
+        <h3><a th:href="@{/evaluate-cylinder-form}">Evaluate optimal packing for cylinder</a></h3>
+    </div>
+
+</div>
+
+</body>
+</html>
